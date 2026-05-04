@@ -1,0 +1,20 @@
+{
+  "verified": false,
+  "status": "pending_external_amd_developer_cloud_run",
+  "hardware": "AMD Instinct MI300X or compatible AMD Developer Cloud instance",
+  "rocm_version": "capture with rocminfo or container metadata",
+  "vllm_version": "capture with python -m vllm --version",
+  "model": "Qwen/Qwen3-Coder-Next-FP8",
+  "prompt_config": {
+    "input_tokens": 512,
+    "output_tokens": 256,
+    "concurrency": 8,
+    "requests": 64
+  },
+  "throughput_tokens_per_second": null,
+  "p50_latency_ms": null,
+  "p95_latency_ms": null,
+  "peak_vram_gb": null,
+  "log_excerpt": "Replace this record after running the generated AMD Developer Cloud runbook.",
+  "notes": "This file is a transparent benchmark schema, not a fabricated result. The Space displays it as pending until measured values are captured on AMD Developer Cloud."
+}
