@@ -279,8 +279,8 @@ THEME = gr.themes.Soft(
 )
 
 
-with gr.Blocks(title="ROCmPort AI") as demo:
-    gr.Markdown("# ROCmPort AI")
+with gr.Blocks(title="ROCmPort AI ⚡") as demo:
+    gr.Markdown("# ROCmPort AI ⚡")
     gr.Markdown("CUDA-to-ROCm migration scanner for PyTorch, Hugging Face, and vLLM repositories.")
     gr.HTML(_pipeline_mode_html())
     gr.Markdown(
