@@ -177,6 +177,7 @@ CSS = """
   font-size: 14px;
   margin-bottom: 16px;
   border: 1px solid;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 .mode-badge.agentic {
   background: rgba(8, 127, 91, 0.1);
@@ -191,54 +192,70 @@ CSS = """
 .score-wrap {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin: 8px 0 16px;
+  gap: 16px;
+  margin: 12px 0 24px;
 }
 .score-card {
   border: 1px solid var(--border-color-primary);
-  border-radius: 8px;
-  padding: 14px;
+  border-radius: 12px;
+  padding: 20px;
   background: var(--background-fill-secondary);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.score-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(237, 28, 36, 0.15);
 }
 .score-label {
   color: var(--body-text-color-subdued);
-  font-size: 13px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   margin-bottom: 8px;
+  font-weight: 600;
 }
 .score-number {
   color: var(--body-text-color);
-  font-size: 34px;
+  font-size: 42px;
   line-height: 1;
-  font-weight: 700;
+  font-weight: 800;
 }
-.after-text { color: #087f5b; }
+.after-text { color: #ed1c24; } /* AMD Red */
 .score-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 8px;
+  margin-top: 12px;
+}
+.score-table th {
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--body-text-color-subdued);
 }
 .score-table th,
 .score-table td {
   border-bottom: 1px solid var(--border-color-primary);
-  padding: 8px;
+  padding: 12px 8px;
   text-align: left;
 }
 .meter {
   width: calc(100% - 48px);
-  height: 8px;
+  height: 10px;
   background: var(--background-fill-primary);
-  border-radius: 4px;
+  border-radius: 5px;
   display: inline-block;
   vertical-align: middle;
   margin-right: 8px;
+  overflow: hidden;
 }
 .meter span {
   display: block;
   height: 100%;
   background: var(--body-text-color-subdued);
-  border-radius: 4px;
+  border-radius: 5px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.meter.after span { background: #087f5b; }
+.meter.after span { background: linear-gradient(90deg, #b80000 0%, #ed1c24 100%); }
 #findings-table table {
   table-layout: fixed;
 }
@@ -247,8 +264,19 @@ CSS = """
 }
 """
 
-
-THEME = gr.themes.Base()
+THEME = gr.themes.Soft(
+    primary_hue="red",
+    neutral_hue="zinc",
+    font=[gr.themes.GoogleFont("Inter"), "ui-sans-serif", "system-ui", "sans-serif"]
+).set(
+    button_primary_background_fill="linear-gradient(90deg, #ed1c24 0%, #b80000 100%)",
+    button_primary_background_fill_hover="linear-gradient(90deg, #ff333a 0%, #cc0000 100%)",
+    button_primary_text_color="white",
+    block_title_text_weight="600",
+    block_shadow="*shadow_drop_lg",
+    block_border_width="0px",
+    block_radius="*radius_lg"
+)
 
 
 with gr.Blocks(title="ROCmPort AI") as demo:
@@ -259,24 +287,7 @@ with gr.Blocks(title="ROCmPort AI") as demo:
         "> **How it works:** Three CrewAI agents collaborate — "
         "a *CUDA Auditor* scans for blockers, a *ROCm Engineer* generates the patch diff, "
         "and a *Report Writer* (backed by Qwen3-Coder on AMD Instinct) writes the migration report. "
-        "All scoring and artifact generation is always deterministic.\n\n"
-        "```mermaid\n"
-        "graph LR\n"
-        "    User([User Repo]) --> Gradio[Gradio UI]\n"
-        "    Gradio --> Pipeline{Pipeline}\n"
-        "    subgraph Agentic Workflow\n"
-        "    Pipeline --> Auditor[CUDA Auditor]\n"
-        "    Auditor --> Engineer[ROCm Engineer]\n"
-        "    Engineer --> Reporter[Report Writer]\n"
-        "    end\n"
-        "    Reporter --> LLM[(Qwen3-Coder)]\n"
-        "    LLM --> Reporter\n"
-        "    Pipeline --> Scanner[Deterministic Scanner]\n"
-        "    Scanner --> Patcher[Patcher]\n"
-        "    Patcher --> Artifacts[Artifact Generator]\n"
-        "    Reporter --> Final([Migration Artifacts])\n"
-        "    Artifacts --> Final\n"
-        "```"
+        "All scoring and artifact generation is always deterministic."
     )
 
     with gr.Row():
