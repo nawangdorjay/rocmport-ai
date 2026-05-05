@@ -1,3 +1,7 @@
 torch
 transformers
 vllm
+cudatoolkit==12.4.1
+cupy-cuda12x
+accelerate
+peft

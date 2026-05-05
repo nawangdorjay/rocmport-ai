@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  inference:
+    image: nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - CUDA_VISIBLE_DEVICES=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: python infer.py
+
+  vllm_server:
+    image: nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0,1
+      - CUDA_VISIBLE_DEVICES=0,1
+    ports:
+      - "8000:8000"
+    command: >
+      bash -c "nvidia-smi && pip install vllm &&
+               vllm serve Qwen/Qwen2.5-0.5B-Instruct --tensor-parallel-size 2"

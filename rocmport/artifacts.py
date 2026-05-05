@@ -94,9 +94,10 @@ def generate_report(bundle: MigrationBundle, qwen_section: str | None = None) ->
         "## AMD Readiness Score",
         "",
         f"- Before deterministic fixes: {bundle.before_score.total}/100",
-        f"- After deterministic fixes: {bundle.after_score.total}/100",
+        f"- Migration package generated: {bundle.after_score.total}/100",
+        "- This score means ROCm migration artifacts were generated and are ready for AMD Developer Cloud validation; it is not a production certification.",
         "",
-        "| Category | Before | After |",
+        "| Category | Before | Migration package |",
         "| --- | ---: | ---: |",
     ]
     for category, label in CATEGORY_LABELS.items():

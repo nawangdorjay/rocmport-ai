@@ -19,15 +19,21 @@ from .scanner import scan_repository
 from .scoring import calculate_score
 
 
-def analyze_repository(repo_path: str | Path, output_dir: str | Path | None = None, repo_name: str | None = None) -> MigrationBundle:
+def analyze_repository(
+    repo_path: str | Path,
+    output_dir: str | Path | None = None,
+    repo_name: str | None = None,
+) -> MigrationBundle:
     root = Path(repo_path).resolve()
     if not root.exists() or not root.is_dir():
         raise ValueError(f"Repository path does not exist or is not a directory: {root}")
 
+    name = repo_name or root.name
+
+    # --- Deterministic steps (always run) --------------------------------
     findings = scan_repository(root)
     before_score = calculate_score(findings, after_patch=False)
     after_score = calculate_score(findings, after_patch=True)
-    name = repo_name or root.name
     patch_diff = generate_patch_diff(root)
     dockerfile = generate_rocm_dockerfile(name)
     runbook = generate_runbook(name)
@@ -49,12 +55,64 @@ def analyze_repository(repo_path: str | Path, output_dir: str | Path | None = No
         feedback=feedback,
     )
 
-    qwen_section = qwen_summary(_qwen_prompt(provisional))
-    provisional.report = generate_report(provisional, qwen_section)
+    # --- Agentic path: CrewAI + Qwen (used when env vars are present) ----
+    agentic_report = _try_agentic_pipeline(root, name)
+
+    if agentic_report:
+        # The CrewAI crew produced the full Markdown report.
+        provisional.report = _wrap_agentic_report(agentic_report, provisional)
+    else:
+        # Fallback: deterministic report + optional Qwen narrative section.
+        qwen_section = qwen_summary(_qwen_prompt(provisional))
+        provisional.report = generate_report(provisional, qwen_section)
+
     artifacts_dir = Path(output_dir) if output_dir else make_work_dir("rocmport-artifacts-")
     provisional.artifact_paths = write_artifacts(provisional, artifacts_dir)
     return provisional
 
+
+# ---------------------------------------------------------------------------
+# Agentic pipeline helper
+# ---------------------------------------------------------------------------
+
+def _try_agentic_pipeline(root: Path, repo_name: str) -> str | None:
+    """
+    Attempt to run the CrewAI multi-agent pipeline.
+    Returns the Markdown report string produced by the Report Writer agent,
+    or None if CrewAI is unavailable or the Qwen endpoint is not configured.
+    Errors are swallowed so the deterministic fallback always succeeds.
+    """
+    try:
+        from .agents import CREWAI_AVAILABLE, run_agentic_pipeline  # noqa: PLC0415
+
+        if not CREWAI_AVAILABLE:
+            return None
+
+        import os  # noqa: PLC0415
+
+        if not os.getenv("QWEN_BASE_URL") or not os.getenv("QWEN_API_KEY"):
+            return None
+
+        result = run_agentic_pipeline(root, repo_name)
+        return result.get("report") if result else None
+    except Exception:  # pragma: no cover
+        return None
+
+
+def _wrap_agentic_report(agent_report: str, bundle: MigrationBundle) -> str:
+    """
+    Prepend the standard score table to the agent-generated Markdown report
+    so the Report tab in the Gradio UI looks consistent.
+    """
+    from .artifacts import generate_report  # noqa: PLC0415
+
+    header = generate_report(bundle, qwen_section=None).split("## Qwen Agent Notes")[0]
+    return header + "## AI Agent Report (CrewAI + Qwen3-Coder)\n\n" + agent_report + "\n"
+
+
+# ---------------------------------------------------------------------------
+# Qwen prompt helper (used only in deterministic fallback)
+# ---------------------------------------------------------------------------
 
 def _qwen_prompt(bundle: MigrationBundle) -> str:
     findings = "\n".join(

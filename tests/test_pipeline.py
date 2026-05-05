@@ -11,6 +11,7 @@ def test_pipeline_generates_artifacts_and_improves_score():
     bundle = analyze_repository(root, output_dir=output_dir, repo_name="cuda_first_repo")
 
     assert bundle.before_score.total < bundle.after_score.total
+    assert bundle.after_score.total < 100
     assert "Dockerfile.rocm" in bundle.artifact_paths
     assert "rocmport_artifacts.zip" in bundle.artifact_paths
     assert "vllm/vllm-openai-rocm:latest" in bundle.dockerfile
