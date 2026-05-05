@@ -284,10 +284,31 @@ with gr.Blocks(title="ROCmPort AI") as demo:
     gr.Markdown("CUDA-to-ROCm migration scanner for PyTorch, Hugging Face, and vLLM repositories.")
     gr.HTML(_pipeline_mode_html())
     gr.Markdown(
-        "> **How it works:** Three CrewAI agents collaborate — "
-        "a *CUDA Auditor* scans for blockers, a *ROCm Engineer* generates the patch diff, "
-        "and a *Report Writer* (backed by Qwen3-Coder on AMD Instinct) writes the migration report. "
-        "All scoring and artifact generation is always deterministic."
+        "> **How it works:** Three CrewAI agents collaborate to migrate the repository. All scoring is deterministic.\n\n"
+        "```text\n"
+        "                    [ 📁 User Repository ]\n"
+        "                              │\n"
+        "                              ▼\n"
+        "                      [ 🖥️ Gradio UI ]\n"
+        "                              │\n"
+        "                              ▼\n"
+        "                       [ ⚙️ Pipeline ]\n"
+        "                              │\n"
+        "            ┌─────────────────┴─────────────────┐\n"
+        "     (Agentic Workflow)                (Deterministic Fallback)\n"
+        "            │                                   │\n"
+        "   [ 🕵️ CUDA Auditor ]                  [ 🔍 Scanner ]\n"
+        "            │                                   │\n"
+        "   [ 🛠️ ROCm Engineer ]                 [ 🩹 Patcher ]\n"
+        "            │                                   │\n"
+        "   [ 📝 Report Writer ]                 [ 📦 Artifacts ]\n"
+        "            │                                   │\n"
+        "  (🧠 Qwen3 on MI300X)                          │\n"
+        "            │                                   │\n"
+        "            └─────────────────┬─────────────────┘\n"
+        "                              ▼\n"
+        "               [ 🎯 Final Migration Package ]\n"
+        "```"
     )
 
     with gr.Row():
