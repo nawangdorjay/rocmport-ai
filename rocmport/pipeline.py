@@ -89,12 +89,25 @@ def _try_agentic_pipeline(root: Path, repo_name: str) -> str | None:
             return None
 
         import os  # noqa: PLC0415
+        import io
+        from contextlib import redirect_stdout
 
         if not os.getenv("QWEN_BASE_URL") or not os.getenv("QWEN_API_KEY"):
             return None
 
-        result = run_agentic_pipeline(root, repo_name)
-        return result.get("report") if result else None
+        f = io.StringIO()
+        with redirect_stdout(f):
+            result = run_agentic_pipeline(root, repo_name)
+        
+        agent_output = result.get("report") if result else None
+        if agent_output:
+            log_str = f.getvalue().strip()
+            # Append the live reasoning logs as an expandable block
+            agent_output += "\n\n<details>\n<summary>🧠 View Agent Reasoning Logs</summary>\n\n```text\n"
+            agent_output += log_str if log_str else "No verbose logs captured."
+            agent_output += "\n```\n</details>\n"
+            
+        return agent_output
     except Exception:  # pragma: no cover
         return None
 

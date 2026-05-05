@@ -18,6 +18,28 @@ ROCmPort AI is a **CUDA-to-ROCm migration scanner** powered by a three-agent Cre
 
 ## What it does
 
+```mermaid
+graph LR
+    User([User Repo]) --> Gradio[Gradio UI]
+    Gradio --> Pipeline{Pipeline}
+    
+    subgraph Agentic Workflow
+    Pipeline --> Auditor[CUDA Auditor]
+    Auditor --> Engineer[ROCm Engineer]
+    Engineer --> Reporter[Report Writer]
+    end
+    
+    Reporter --> LLM[(Qwen3-Coder on AMD Instinct)]
+    LLM --> Reporter
+    
+    Pipeline --> Scanner[Deterministic Scanner]
+    Scanner --> Patcher[Patcher]
+    Patcher --> Artifacts[Artifact Generator]
+    
+    Reporter --> Final([Migration Artifacts & Patch])
+    Artifacts --> Final
+```
+
 | Output | Description |
 |---|---|
 | **AMD Readiness Score** | Before/after scores across 5 categories |
