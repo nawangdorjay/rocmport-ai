@@ -1,57 +1,93 @@
 ---
 title: ROCmPort AI
+emoji: ⚡
+colorFrom: red
+colorTo: orange
 sdk: gradio
 app_file: app.py
 pinned: false
+license: mit
+short_description: CUDA-to-ROCm migration scanner for PyTorch, HF & vLLM repos
 ---
 
-# ROCmPort AI
+# ⚡ ROCmPort AI
 
-ROCmPort AI is a hackathon-ready Gradio application for scanning CUDA-first AI repositories and generating an AMD ROCm migration package.
+> **AMD Developer Hackathon — lablab.ai** | Track: AI Agents & Agentic Workflows
 
-It produces:
+ROCmPort AI is a **CUDA-to-ROCm migration scanner** powered by a three-agent CrewAI pipeline and Qwen3-Coder running on AMD Instinct GPUs. Drop in any CUDA-first PyTorch, Hugging Face, or vLLM repository and get a full AMD readiness report in seconds.
 
-- AMD Readiness Score before and after deterministic migration fixes
-- CUDA/ROCm blocker findings with file and line references
-- ROCm-ready patch diff
-- `Dockerfile.rocm`
-- AMD Developer Cloud runbook
-- migration report
-- ROCm migration cookbook and feedback notes
+## What it does
 
-The MVP focuses on Python, PyTorch, Hugging Face inference scripts, vLLM/SGLang launch commands, Dockerfiles, and benchmark scripts. It does not attempt CUDA C++ kernel migration.
+| Output | Description |
+|---|---|
+| **AMD Readiness Score** | Before/after scores across 5 categories |
+| **Findings table** | File + line references for every CUDA blocker |
+| **ROCm patch diff** | Auto-generated unified diff to apply deterministic fixes |
+| **Dockerfile.rocm** | ROCm-enabled container using vllm/vllm-openai-rocm |
+| **AMD Developer Cloud Runbook** | Exact validation commands for AMD Instinct GPUs |
+| **Migration report** | Narrative report (CrewAI + Qwen when configured) |
+| **Benchmark schema** | Structured result to fill after AMD Developer Cloud run |
+| **Artifact ZIP** | All outputs bundled for download |
 
-## Run Locally
+## Three-agent pipeline
+
+When `QWEN_BASE_URL` and `QWEN_API_KEY` are set (pointing to a Qwen3-Coder endpoint on AMD Instinct MI300X via vLLM), three CrewAI agents collaborate:
+
+1. **CUDA Migration Auditor** — scans every file for blockers using `scan_cuda_repository` tool
+2. **ROCm Migration Engineer** — generates the patch diff using `generate_rocm_patch` tool  
+3. **Migration Report Writer** — synthesises findings into an actionable Markdown report
+
+Without those env vars the app falls back to the fully deterministic scanner + patcher (which always runs).
+
+## Run locally
 
 ```bash
 pip install -r requirements.txt
 python app.py
 ```
 
-The app listens on `http://127.0.0.1:7860` by default.
+App listens on `http://127.0.0.1:7860`.
 
-## Optional Qwen Endpoint
-
-ROCmPort AI uses deterministic scanners and patching as the source of truth. If these environment variables are present, it also asks a Qwen-compatible OpenAI API endpoint to improve the migration narrative:
+## Enable the full CrewAI + Qwen pipeline
 
 ```bash
-set QWEN_BASE_URL=https://your-endpoint/v1
+# Windows
+set QWEN_BASE_URL=https://your-amd-instinct-endpoint/v1
 set QWEN_API_KEY=your-token
 set QWEN_MODEL=Qwen/Qwen3-Coder-Next-FP8
+python app.py
+
+# Linux / macOS
+QWEN_BASE_URL=https://your-amd-instinct-endpoint/v1 \
+QWEN_API_KEY=your-token \
+QWEN_MODEL=Qwen/Qwen3-Coder-Next-FP8 \
+python app.py
 ```
-
-If those variables are missing, the app falls back to a deterministic report.
-
-## AMD Benchmark
-
-This workspace cannot run AMD Developer Cloud jobs directly. The included `data/benchmark_result.json` is a transparent pending benchmark record plus the exact collection schema. After running the generated runbook on AMD Developer Cloud, replace it with the measured values and logs.
 
 ## Tests
 
 ```bash
-python -m pytest
+python -m pytest tests/ -v
 ```
 
-## Deployment
+7 tests cover the scanner, pipeline, and CrewAI agent layer.
 
-Create a public Hugging Face Space with the Gradio SDK and upload this repository. Add Qwen endpoint credentials as Space secrets only if you want live Qwen explanations.
+## AMD Benchmark
+
+The `data/benchmark_result.json` is a transparent **pending benchmark schema** — not a fabricated result. Run the generated AMD Developer Cloud runbook (shown in the app's Runbook tab) on an AMD Instinct MI300X instance to capture real throughput, latency, and VRAM figures, then replace the file.
+
+## Deploy to Hugging Face Spaces
+
+```bash
+python scripts/deploy_to_hf.py --token hf_... --username YourHFUsername
+```
+
+## Tech stack
+
+- **AMD Developer Cloud** + **AMD Instinct MI300X** for GPU compute
+- **ROCm** — open-source GPU computing platform
+- **CrewAI** — multi-agent orchestration
+- **Qwen3-Coder-Next-FP8** — code-specialist LLM on AMD hardware
+- **vLLM (ROCm build)** — high-throughput serving
+- **Hugging Face** — model hub + Space hosting
+- **Gradio 5** — web UI

@@ -1,9 +1,9 @@
 {
   "verified": false,
   "status": "pending_external_amd_developer_cloud_run",
-  "hardware": "AMD Instinct MI300X or compatible AMD Developer Cloud instance",
-  "rocm_version": "capture with rocminfo or container metadata",
-  "vllm_version": "capture with python -m vllm --version",
+  "hardware": "AMD Instinct MI300X (192 GB HBM3) via AMD Developer Cloud",
+  "rocm_version": "ROCm 6.x — capture with: rocminfo | grep -i 'ROCm Runtime'",
+  "vllm_version": "capture with: python -m vllm --version",
   "model": "Qwen/Qwen3-Coder-Next-FP8",
   "prompt_config": {
     "input_tokens": 512,
@@ -11,10 +11,11 @@
     "concurrency": 8,
     "requests": 64
   },
+  "collection_command": "rocm-smi --showproductname --showmeminfo vram --showuse && python scripts/collect_benchmark_result.py --output data/benchmark_result.json",
   "throughput_tokens_per_second": null,
   "p50_latency_ms": null,
   "p95_latency_ms": null,
   "peak_vram_gb": null,
-  "log_excerpt": "Replace this record after running the generated AMD Developer Cloud runbook.",
-  "notes": "This file is a transparent benchmark schema, not a fabricated result. The Space displays it as pending until measured values are captured on AMD Developer Cloud."
+  "log_excerpt": "Replace this record with the output from the AMD Developer Cloud runbook after running the generated rocmport_artifacts.zip on an AMD Instinct GPU VM.",
+  "notes": "This file is a transparent benchmark schema — not a fabricated result. The Space displays it as 'Pending AMD Developer Cloud run' until real measured values are captured. Run the AMD Developer Cloud runbook tab in the app to get the exact collection commands."
 }
