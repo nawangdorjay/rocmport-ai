@@ -2,7 +2,7 @@
 title: ROCmPort AI
 emoji: ⚡
 colorFrom: red
-colorTo: orange
+colorTo: yellow
 sdk: gradio
 app_file: app.py
 pinned: false
