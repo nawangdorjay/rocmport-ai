@@ -179,14 +179,14 @@ CSS = """
   border: 1px solid;
 }
 .mode-badge.agentic {
-  background: #d3f9d8;
+  background: rgba(8, 127, 91, 0.1);
   border-color: #087f5b;
-  color: #0b6b4e;
+  color: var(--body-text-color);
 }
 .mode-badge.deterministic {
-  background: #f0f4ff;
+  background: rgba(54, 79, 199, 0.1);
   border-color: #748ffc;
-  color: #364fc7;
+  color: var(--body-text-color);
 }
 .score-wrap {
   display: grid;
@@ -195,18 +195,18 @@ CSS = """
   margin: 8px 0 16px;
 }
 .score-card {
-  border: 1px solid #d9dee7;
+  border: 1px solid var(--border-color-primary);
   border-radius: 8px;
   padding: 14px;
-  background: #ffffff;
+  background: var(--background-fill-secondary);
 }
 .score-label {
-  color: #5d6675;
+  color: var(--body-text-color-subdued);
   font-size: 13px;
   margin-bottom: 8px;
 }
 .score-number {
-  color: #171b22;
+  color: var(--body-text-color);
   font-size: 34px;
   line-height: 1;
   font-weight: 700;
@@ -219,14 +219,14 @@ CSS = """
 }
 .score-table th,
 .score-table td {
-  border-bottom: 1px solid #e6e9ef;
+  border-bottom: 1px solid var(--border-color-primary);
   padding: 8px;
   text-align: left;
 }
 .meter {
   width: calc(100% - 48px);
   height: 8px;
-  background: #edf0f5;
+  background: var(--background-fill-primary);
   border-radius: 4px;
   display: inline-block;
   vertical-align: middle;
@@ -235,7 +235,7 @@ CSS = """
 .meter span {
   display: block;
   height: 100%;
-  background: #525866;
+  background: var(--body-text-color-subdued);
   border-radius: 4px;
 }
 .meter.after span { background: #087f5b; }
